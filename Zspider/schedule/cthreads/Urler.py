@@ -2,7 +2,7 @@
 import logging
 from .base import TypeEnum, BaseThread
 import multiprocessing
-from .utilities import check_url_legal
+from .utilities import check_url_legal,get_url_legal
 
 class Urler(BaseThread):
     """
@@ -28,7 +28,7 @@ class Urler(BaseThread):
             for _url, _keys ,priority in filter(lambda x: check_url_legal(x[0]), task_list):
                 if _keys["type"] == "index":
                     self._pool.update_number_dict(TypeEnum.URL_DEAL_SUCC, +1)
-                    self._pool.add_a_task(TypeEnum.URL_REQUEST, (_url, _keys, priority))
+                    self._pool.add_a_task(TypeEnum.URL_REQUEST,(_url,_keys,priority))
                 elif _keys["type"] == "next":
                     if (not self._worker) or self._worker.next_url_add(_url):
                         self._pool.add_a_task(TypeEnum.URL_REQUEST, (_url, _keys, priority))

@@ -14,4 +14,5 @@ class SenterThread(BaseThread):
             logging.warning("sent: %s", sent_state)
         else:
             logging.warning("%s warning: %s", sent_res[0], sent_res[1])
-        return not (self._pool.get_thread_stop_flag() and self._pool.is_all_tasks_done())
+        # return not (self._pool.get_thread_stop_flag() and self._pool.is_all_tasks_done())
+        return not self._pool.get_stop_flg()

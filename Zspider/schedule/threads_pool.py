@@ -2,7 +2,7 @@ import queue
 import logging
 import threading
 from .cthreads import *
-import json
+import json,sys
 from schedule.cthreads.utilities import check_url_legal  #检测url是否合法
 
 
@@ -32,7 +32,7 @@ class ThreadPool(object):
         self._queue_parse = queue.PriorityQueue(queue_parse_size)
         self._queue_save = queue.PriorityQueue(queue_save_size)
         self._queue_proxy = queue.PriorityQueue(queue_proxy_size)
-
+        self._stop_spider = False
         self._lock = threading.Lock()                                       #_number_dict需要的锁
         self._number_dict = {
 
@@ -60,7 +60,8 @@ class ThreadPool(object):
             TypeEnum.PROXY_FAIL: 0,                                           # 不可用的代理数
         }
 
-        logging.warning("线程池已初始化")
+        print("线程池已初始化")
+        # logging.warning("线程池已初始化")
 
         self._thread_monitor = MonitorThread("monitor", self) #监视线程
         self._thread_monitor.setDaemon(True)
@@ -102,8 +103,11 @@ class ThreadPool(object):
         """
          基于request_num（抓取数量）启动此线程池
         """
-        logging.warning("线程池开始工作: 待处理：%s, 每次处理数量：%s", self.get_number_dict(TypeEnum.URL_DEAL_NOT), request_num)
+
+        print("线程池开始工作: 待处理：%s, 每次处理数量：%s", self.get_number_dict(TypeEnum.URL_DEAL_NOT), request_num)
+        # logging.warning("线程池开始工作: 待处理：%s, 每次处理数量：%s", self.get_number_dict(TypeEnum.URL_DEAL_NOT), request_num)
         self._thread_stop_flag = False
+        # self._stop_spider = False
         self._thread_login = self._cust_login.working(self) if self._cust_login else None
         self._thread_urler = Urler("filterurl", self._url_filter, self)
         # self._thread_requester = RequesterThread("requesturl", white_url, self,white_url_method,white_url_header,white_url_data)
@@ -133,13 +137,15 @@ class ThreadPool(object):
             self._thread_proxy.setDaemon(True)
             self._thread_proxy.start()
 
-        logging.warning("ThreadPool starts working: success")
+        print("ThreadPool starts working: success")
+        # logging.warning("ThreadPool starts working: success")
         self.wait_for_finished()
         return
 
     def wait_for_finished(self):
 
-        logging.warning("ThreadPool waits for finishing")
+        print("ThreadPool waits for finishing")
+        # logging.warning("ThreadPool waits for finishing")
         self._thread_stop_flag = True
 
         if self._thread_urler and self._thread_urler.is_alive():
@@ -171,7 +177,6 @@ class ThreadPool(object):
         return
     def updata_login_flag(self,upbools):
         self._lock.acquire()
-        print(upbools)
         self._login_flag = upbools
         if upbools:
             self._cust_login.working(self)
@@ -268,3 +273,9 @@ class ThreadPool(object):
         elif task_type == TypeEnum.PROXY:
             self._queue_proxy.task_done()
         return
+
+    def stop_spider(self):
+        self._stop_spider = True
+        return
+    def get_stop_flg(self):
+        return self._stop_spider

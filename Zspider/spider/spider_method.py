@@ -63,6 +63,7 @@ class MyParser(spider.Parser):
 
             subject = re.findall('.*<string name="subject">(.*?)</string>.*', r_info.text)[0]
             item[subject] = subject
+        print(item)
         return 1,item
 class MySaver(spider.Save):
     def item_save(self,item) -> (int,str):
@@ -98,19 +99,9 @@ myrequest = MyRequester()
 myparser = MyParser()
 mysaver = MySaver()
 mysent = MySenter(20)#设置时间间隔
-def test():
-    """
-    爬虫名称 spidername
-    起始url start_url
-    需要爬取的url spider_url
-    下一页url   next_page_url
-    """
-    spidername = "163spider"
-    start_url = "https://mail.163.com/js6/s?sid="
-    spider_url  =  r'https://mail\.163\.com/js6/s'
-    next_page_url = r""
-    #初始化爬虫
-    webSpider = spider.ini_Spider()
-    webSpider.spider_ini(name=spidername,start_url=start_url,spider_url=spider_url,next_page_url=next_page_url)
+
+def mothed(webSpider):
     webSpider.method(requester=myrequest ,parser=myparser,save=mysaver,sent=mysent,login = mylogin)
-    webSpider.start()
+def stop(webSpider):
+    webSpider.stop()
+    return 1

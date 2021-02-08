@@ -1,6 +1,7 @@
 # _*_ coding: utf-8 _*_
 import os
 import json
+import spider
 
 class Login:
     def __init__(self):
@@ -26,6 +27,7 @@ class Login:
             self._pool.updata_cookie(self.COOKIE)
             self._pool.get_login_flag()
             self._pool.updata_login_flag(False)
+
         return not (self._pool.get_thread_stop_flag() and self._pool.is_all_tasks_done())
 
     def get_login(self):
@@ -38,7 +40,6 @@ class Login:
 
 
     def do_login(self) ->(dict):
-        """
-           需要return cookie_dict
-        """
-        raise NotImplementedError
+        login = spider.Login163("luotao202013", "luotao2020123")
+        result = login.start_login()
+        return result

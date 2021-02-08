@@ -5,6 +5,7 @@ import time
 import queue
 import logging
 import threading
+import sys
 
 
 class TypeEnum(enum.Enum):
@@ -61,11 +62,15 @@ class BaseThread(threading.Thread):
                 #如果线程的程序为false，停止执行
                 if not self.working():
                     break
+                if self._pool.get_stop_flg():
+                    break
             #队列为空
             except queue.Empty:
-                #如果get_thread_stop_flag为真，并且所有的任务都完成了（is_all_tasks_done任务都为空返回true）
-                if self._pool.get_thread_stop_flag() and self._pool.is_all_tasks_done():
+                if self._pool.get_stop_flg():
                     break
+                #如果get_thread_stop_flag为真，并且所有的任务都完成了（is_all_tasks_done任务都为空返回true）
+                # if self._pool.get_thread_stop_flag() and self._pool.is_all_tasks_done():
+                #     break
         return
 
     def working(self):
@@ -122,8 +127,12 @@ def work_monitor(self):
     info += " 存储:[RUN=%d,NOT=%d,SUCC=%d,FAIL=%d];" % (
         save_run, save_not, save_succ, save_fail,
     )
-    logging.warning(info)
-    return not (self._pool.get_thread_stop_flag() and self._pool.is_all_tasks_done())
+    fh = open("temp.txt", "a+")
+    sys.stdout = fh
+    print(info)
+
+    return not self._pool.get_stop_flg()
+    # return not (self._pool.get_thread_stop_flag() and self._pool.is_all_tasks_done())
 
 MonitorThread = type("MonitorThread", (BaseThread, ), dict(__init__=init_monitor_thread, working=work_monitor))
 

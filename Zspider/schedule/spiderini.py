@@ -28,5 +28,10 @@ class ini_Spider(object):
     def start(self,request_num=10):
         try:
             self.web_spider.start_working(request_num,self.spider_url,self.next_page_url)
+            return 1
         except:
             print("spider end")
+            return 0
+    def stop(self):
+        self.web_spider.stop_spider()
+        return
